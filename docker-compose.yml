@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+
+  db:
+    image: postgres:13
+    container_name: compliance_db
+    environment:
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+      POSTGRES_DB: postgres
+    volumes:
+      - odoo_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  odoo:
+    image: odoo:15.0
+    container_name: compliance_odoo
+    depends_on:
+      - db
+    ports:
+      - "8069:8069"
+    environment:
+      HOST: db
+      USER: odoo
+      PASSWORD: odoo
+    volumes:
+      - ./compliance_master:/mnt/extra-addons/compliance_master
+      - odoo_web_data:/var/lib/odoo
+    command: odoo --addons-path=/mnt/extra-addons,/usr/lib/python3/dist-packages/odoo/addons --db_host=db --db_user=odoo --db_password=odoo
+    restart: unless-stopped
+
+volumes:
+  odoo_db_data:
+  odoo_web_data:

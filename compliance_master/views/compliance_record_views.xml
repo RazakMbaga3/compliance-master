@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Form View -->
+    <!-- ══════════════════════════════════════════════════════
+         FORM VIEW
+    ══════════════════════════════════════════════════════ -->
     <record id="view_compliance_record_form" model="ir.ui.view">
         <field name="name">compliance.record.form</field>
         <field name="model">compliance.record</field>
@@ -20,35 +22,53 @@
                            statusbar_visible="active,due,under_renewal,overdue"/>
                 </header>
                 <sheet>
+                    <!-- Smart buttons -->
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_documents" type="object"
                                 class="oe_stat_button" icon="fa-file-text-o">
                             <field name="document_count" widget="statinfo" string="Documents"/>
                         </button>
+                        <button class="oe_stat_button" icon="fa-calendar"
+                                attrs="{'invisible': [('days_to_expiry', '=', 0)]}">
+                            <field name="days_to_expiry" widget="statinfo" string="Days Left"/>
+                        </button>
                     </div>
+
+                    <!-- Title -->
                     <div class="oe_title">
                         <label for="name"/>
                         <h1><field name="name" placeholder="Compliance Description"/></h1>
                     </div>
+
+                    <!-- Row 1: Classification + Certificate -->
                     <group>
-                        <group string="General Information">
+                        <group string="Classification">
                             <field name="ref"/>
-                            <field name="agency"/>
-                            <field name="division"/>
+                            <field name="compliance_type"/>
+                            <field name="certificate_number"/>
+                            <field name="division_id"/>
                             <field name="department_id"/>
+                            <field name="agency"/>
                             <field name="location_custodian"/>
+                            <field name="vehicle_reg"
+                                   attrs="{'invisible': [('compliance_type', '!=', 'fleet')],
+                                           'required': [('compliance_type', '=', 'fleet')]}"/>
+                        </group>
+                        <group string="Frequency &amp; Validity">
                             <field name="frequency"/>
                             <field name="frequency_other"
                                    attrs="{'invisible': [('frequency', '!=', 'other')],
-                                           'required': [('frequency', '=', 'other')]}"/>
-                        </group>
-                        <group string="Validity">
+                                           'required':  [('frequency', '=', 'other')]}"/>
+                            <field name="due_day_text"
+                                   attrs="{'invisible': [('compliance_type', '!=', 'periodic')]}"/>
                             <field name="origin_date"/>
                             <field name="valid_from"/>
                             <field name="expiry_date"/>
                             <field name="renewal_date"/>
                         </group>
                     </group>
+
+                    <!-- Row 2: Responsibility + Notifications -->
                     <group>
                         <group string="Responsibility">
                             <field name="responsible_direct_id"/>
@@ -61,6 +81,8 @@
                             <field name="notify_head_days"/>
                         </group>
                     </group>
+
+                    <!-- Tabs -->
                     <notebook>
                         <page string="Documents &amp; Versions" name="documents">
                             <field name="document_ids">
@@ -77,14 +99,17 @@
                             </field>
                         </page>
                         <page string="Remarks" name="remarks">
-                            <field name="remarks" placeholder="Additional notes..."/>
+                            <field name="remarks" placeholder="Additional notes, instructions, history…"/>
                         </page>
                         <page string="Notification Log" name="notif_log">
-                            <group>
-                                <field name="notified_direct" string="Direct Notified"/>
-                                <field name="notified_manager" string="Manager Notified"/>
-                                <field name="notified_head" string="Head Notified"/>
+                            <group string="Last notification sent">
+                                <field name="notified_direct"  string="Direct (Level 1) Notified"/>
+                                <field name="notified_manager" string="Manager (Level 2) Notified"/>
+                                <field name="notified_head"    string="Head Notified"/>
                             </group>
+                            <p class="text-muted" style="font-size:12px;">
+                                Flags reset automatically when a record is marked Active after renewal.
+                            </p>
                         </page>
                     </notebook>
                 </sheet>
@@ -97,7 +122,9 @@
         </field>
     </record>
 
-    <!-- Tree View -->
+    <!-- ══════════════════════════════════════════════════════
+         TREE VIEW
+    ══════════════════════════════════════════════════════ -->
     <record id="view_compliance_record_tree" model="ir.ui.view">
         <field name="name">compliance.record.tree</field>
         <field name="model">compliance.record</field>
@@ -108,14 +135,19 @@
                   decoration-info="state == 'under_renewal'"
                   decoration-muted="state == 'inactive'">
                 <field name="ref"/>
+                <field name="compliance_type" optional="show"/>
                 <field name="name"/>
+                <field name="certificate_number" optional="hide"/>
                 <field name="agency"/>
+                <field name="division_id" optional="show"/>
                 <field name="department_id"/>
-                <field name="responsible_direct_id"/>
-                <field name="responsible_manager_id"/>
-                <field name="valid_from"/>
+                <field name="vehicle_reg" optional="hide"/>
+                <field name="responsible_direct_id"  optional="show"/>
+                <field name="responsible_manager_id" optional="hide"/>
+                <field name="valid_from"   optional="hide"/>
                 <field name="expiry_date"/>
-                <field name="renewal_date"/>
+                <field name="days_to_expiry" string="Days Left" optional="show"/>
+                <field name="renewal_date" optional="hide"/>
                 <field name="state" widget="badge"
                        decoration-danger="state == 'overdue'"
                        decoration-warning="state == 'due'"
@@ -126,86 +158,123 @@
         </field>
     </record>
 
-    <!-- Search View -->
+    <!-- ══════════════════════════════════════════════════════
+         SEARCH VIEW
+    ══════════════════════════════════════════════════════ -->
     <record id="view_compliance_record_search" model="ir.ui.view">
         <field name="name">compliance.record.search</field>
         <field name="model">compliance.record</field>
         <field name="arch" type="xml">
             <search string="Search Compliances">
                 <field name="name"/>
+                <field name="certificate_number" string="Cert / Licence No."/>
                 <field name="agency"/>
+                <field name="vehicle_reg" string="Vehicle Reg."/>
+                <field name="division_id"/>
                 <field name="department_id"/>
                 <field name="responsible_direct_id"/>
                 <field name="responsible_manager_id"/>
                 <field name="responsible_head_id"/>
-                <filter string="Active" name="filter_active" domain="[('state','=','active')]"/>
-                <filter string="Due for Renewal" name="filter_due" domain="[('state','=','due')]"/>
-                <filter string="Under Renewal" name="filter_under_renewal" domain="[('state','=','under_renewal')]"/>
-                <filter string="Overdue" name="filter_overdue" domain="[('state','=','overdue')]"/>
-                <filter string="Inactive" name="filter_inactive" domain="[('state','=','inactive')]"/>
+
+                <!-- Status filters -->
+                <filter string="Active"          name="filter_active"         domain="[('state','=','active')]"/>
+                <filter string="Due for Renewal" name="filter_due"            domain="[('state','=','due')]"/>
+                <filter string="Under Renewal"   name="filter_under_renewal"  domain="[('state','=','under_renewal')]"/>
+                <filter string="Overdue"         name="filter_overdue"        domain="[('state','=','overdue')]"/>
+                <filter string="Inactive"        name="filter_inactive"       domain="[('state','=','inactive')]"/>
                 <separator/>
-                <filter string="Expiring This Month" name="filter_this_month"
-                        domain="[('expiry_date','&gt;=', (context_today()).strftime('%Y-%m-01')),
-                                 ('expiry_date','&lt;=', (context_today() + relativedelta(day=31)).strftime('%Y-%m-%d'))]"/>
+
+                <!-- Type filters -->
+                <filter string="Licences / Permits"   name="filter_license"   domain="[('compliance_type','=','license')]"/>
+                <filter string="Certificates"         name="filter_cert"      domain="[('compliance_type','=','certificate')]"/>
+                <filter string="Fleet / Vehicles"     name="filter_fleet"     domain="[('compliance_type','=','fleet')]"/>
+                <filter string="Periodic Submissions" name="filter_periodic"  domain="[('compliance_type','=','periodic')]"/>
                 <separator/>
+
+                <!-- Expiry window filters -->
+                <filter string="Expiring in 30 Days" name="filter_30"
+                        domain="[('expiry_date','&gt;=', context_today().strftime('%Y-%m-%d')),
+                                 ('expiry_date','&lt;=', (context_today() + datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+                <filter string="Expiring in 60 Days" name="filter_60"
+                        domain="[('expiry_date','&gt;=', context_today().strftime('%Y-%m-%d')),
+                                 ('expiry_date','&lt;=', (context_today() + datetime.timedelta(days=60)).strftime('%Y-%m-%d'))]"/>
+                <filter string="Expiring in 90 Days" name="filter_90"
+                        domain="[('expiry_date','&gt;=', context_today().strftime('%Y-%m-%d')),
+                                 ('expiry_date','&lt;=', (context_today() + datetime.timedelta(days=90)).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+
+                <!-- Group by -->
                 <group expand="0" string="Group By">
-                    <filter string="Department" name="group_department" context="{'group_by': 'department_id'}"/>
-                    <filter string="Status" name="group_status" context="{'group_by': 'state'}"/>
-                    <filter string="Frequency" name="group_frequency" context="{'group_by': 'frequency'}"/>
-                    <filter string="Expiry Month" name="group_expiry" context="{'group_by': 'expiry_date:month'}"/>
+                    <filter string="Division"     name="group_division"    context="{'group_by': 'division_id'}"/>
+                    <filter string="Department"   name="group_department"  context="{'group_by': 'department_id'}"/>
+                    <filter string="Status"       name="group_status"      context="{'group_by': 'state'}"/>
+                    <filter string="Type"         name="group_type"        context="{'group_by': 'compliance_type'}"/>
+                    <filter string="Frequency"    name="group_frequency"   context="{'group_by': 'frequency'}"/>
+                    <filter string="Agency"       name="group_agency"      context="{'group_by': 'agency'}"/>
+                    <filter string="Expiry Month" name="group_expiry"      context="{'group_by': 'expiry_date:month'}"/>
                 </group>
             </search>
         </field>
     </record>
 
-    <!-- Pivot View -->
+    <!-- ══════════════════════════════════════════════════════
+         PIVOT VIEW
+    ══════════════════════════════════════════════════════ -->
     <record id="view_compliance_record_pivot" model="ir.ui.view">
         <field name="name">compliance.record.pivot</field>
         <field name="model">compliance.record</field>
         <field name="arch" type="xml">
-            <pivot string="Compliance Summary">
+            <pivot string="Compliance Summary" display_quantity="true">
+                <field name="division_id"   type="row"/>
                 <field name="department_id" type="row"/>
-                <field name="state" type="col"/>
-                <field name="name" type="measure"/>
+                <field name="state"         type="col"/>
             </pivot>
         </field>
     </record>
 
-    <!-- Graph View -->
+    <!-- ══════════════════════════════════════════════════════
+         GRAPH VIEW
+    ══════════════════════════════════════════════════════ -->
     <record id="view_compliance_record_graph" model="ir.ui.view">
         <field name="name">compliance.record.graph</field>
         <field name="model">compliance.record</field>
         <field name="arch" type="xml">
-            <graph string="Compliance by Department &amp; Status" type="bar">
-                <field name="department_id"/>
+            <graph string="Compliance by Division / Department &amp; Status" type="bar" stacked="True">
+                <field name="division_id"/>
                 <field name="state"/>
             </graph>
         </field>
     </record>
 
-    <!-- Action -->
+    <!-- ══════════════════════════════════════════════════════
+         ACTIONS
+    ══════════════════════════════════════════════════════ -->
     <record id="action_compliance_record" model="ir.actions.act_window">
         <field name="name">Compliance Records</field>
         <field name="res_model">compliance.record</field>
         <field name="view_mode">tree,form,pivot,graph</field>
         <field name="search_view_id" ref="view_compliance_record_search"/>
-        <field name="context">{'search_default_group_department': 1}</field>
+        <field name="context">{'search_default_group_division': 1}</field>
     </record>
 
-    <!-- Overdue shortcut action -->
     <record id="action_compliance_overdue" model="ir.actions.act_window">
         <field name="name">Overdue Compliances</field>
         <field name="res_model">compliance.record</field>
         <field name="view_mode">tree,form</field>
         <field name="domain">[('state', '=', 'overdue')]</field>
-        <field name="context">{'search_default_filter_overdue': 1}</field>
     </record>
 
-    <!-- Due shortcut action -->
     <record id="action_compliance_due" model="ir.actions.act_window">
         <field name="name">Due for Renewal</field>
         <field name="res_model">compliance.record</field>
         <field name="view_mode">tree,form</field>
         <field name="domain">[('state', 'in', ['due', 'under_renewal'])]</field>
+    </record>
+
+    <!-- Division list action (config menu) -->
+    <record id="action_compliance_division" model="ir.actions.act_window">
+        <field name="name">Divisions</field>
+        <field name="res_model">compliance.division</field>
+        <field name="view_mode">tree,form</field>
     </record>
 </odoo>

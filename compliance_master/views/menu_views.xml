@@ -4,7 +4,7 @@
     <menuitem id="menu_compliance_master_root"
               name="Compliance Master"
               sequence="80"
-              web_icon="compliance_master,static/description/icon.png"/>
+              web_icon="compliance_master,static/description/icon.svg"/>
 
     <!-- Dashboard -->
     <menuitem id="menu_compliance_dashboard"
@@ -40,4 +40,17 @@
               parent="menu_compliance_master_root"
               action="compliance_master.action_compliance_document"
               sequence="50"/>
+
+    <!-- ── Configuration sub-menu ── -->
+    <menuitem id="menu_compliance_config"
+              name="Configuration"
+              parent="menu_compliance_master_root"
+              sequence="90"
+              groups="compliance_master.group_compliance_manager"/>
+
+    <menuitem id="menu_compliance_divisions"
+              name="Divisions"
+              parent="menu_compliance_config"
+              action="compliance_master.action_compliance_division"
+              sequence="10"/>
 </odoo>

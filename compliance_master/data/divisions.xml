@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- All divisions sourced from the Compliance Master Excel -->
+    <record id="div_power_plant"      model="compliance.division"><field name="name">Power Plant</field>         <field name="code">PP</field></record>
+    <record id="div_mechanical"       model="compliance.division"><field name="name">Mechanical – Kimbiji</field><field name="code">MECH</field></record>
+    <record id="div_qc_lab"           model="compliance.division"><field name="name">QC Laboratory</field>       <field name="code">QCL</field></record>
+    <record id="div_logistics"        model="compliance.division"><field name="name">Logistics</field>           <field name="code">LOG</field></record>
+    <record id="div_sales_marketing"  model="compliance.division"><field name="name">Sales &amp; Marketing</field><field name="code">SLS</field></record>
+    <record id="div_mining"           model="compliance.division"><field name="name">Mining</field>              <field name="code">MIN</field></record>
+    <record id="div_plant_admin"      model="compliance.division"><field name="name">Kimbiji Plant – Admin/Safety</field><field name="code">KPA</field></record>
+    <record id="div_hr"               model="compliance.division"><field name="name">HR &amp; Administration</field><field name="code">HR</field></record>
+    <record id="div_accounts"         model="compliance.division"><field name="name">Accounts / Finance</field>  <field name="code">ACC</field></record>
+    <record id="div_corporate_admin"  model="compliance.division"><field name="name">Corporate – Admin</field>   <field name="code">CADM</field></record>
+    <record id="div_pan_corporate"    model="compliance.division"><field name="name">Pan Corporate</field>       <field name="code">PAN</field></record>
+    <record id="div_purchase"         model="compliance.division"><field name="name">Purchase</field>            <field name="code">PUR</field></record>
+    <record id="div_instrumentation"  model="compliance.division"><field name="name">Instrumentation</field>     <field name="code">INST</field></record>
+    <record id="div_production"       model="compliance.division"><field name="name">Production</field>          <field name="code">PROD</field></record>
+    <record id="div_store"            model="compliance.division"><field name="name">Store</field>               <field name="code">STR</field></record>
+    <record id="div_admin_safety"     model="compliance.division"><field name="name">Admin / Safety</field>      <field name="code">ASAF</field></record>
+    <record id="div_training"         model="compliance.division"><field name="name">Training</field>            <field name="code">TRN</field></record>
+</odoo>
