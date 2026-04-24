@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Direct / Level 1 Reminder -->
+    <record id="email_template_renewal_direct" model="mail.template">
+        <field name="name">Compliance Renewal Reminder – Direct Responsible</field>
+        <field name="model_id" ref="compliance_master.model_compliance_record"/>
+        <field name="subject">Compliance Renewal Reminder: {{ object.name }} – {{ object.department_id.name or '' }}</field>
+        <field name="email_from">{{ (object.env['ir.mail_server'].search([], limit=1).smtp_user or user.email) }}</field>
+        <field name="email_to">{{ object.responsible_direct_id.email }}</field>
+        <field name="body_html"><![CDATA[
+<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #e0e0e0;border-radius:6px;overflow:hidden;">
+  <div style="background:#1a4f8a;padding:20px 30px;">
+    <h2 style="color:#fff;margin:0;">Compliance Renewal Reminder</h2>
+    <p style="color:#cce0ff;margin:4px 0 0;">Compliance Master System – Lake Cement Limited</p>
+  </div>
+  <div style="padding:24px 30px;">
+    <p>Dear <strong>{{ object.responsible_direct_id.name }}</strong>,</p>
+    <p>This is an automated reminder that the following compliance record requires your attention:</p>
+    <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+      <tr style="background:#f5f8fc;">
+        <td style="padding:8px 12px;font-weight:bold;width:40%;">Compliance</td>
+        <td style="padding:8px 12px;">{{ object.name }}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 12px;font-weight:bold;">Agency</td>
+        <td style="padding:8px 12px;">{{ object.agency }}</td>
+      </tr>
+      <tr style="background:#f5f8fc;">
+        <td style="padding:8px 12px;font-weight:bold;">Department</td>
+        <td style="padding:8px 12px;">{{ object.department_id.name or '—' }}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 12px;font-weight:bold;">Expiry Date</td>
+        <td style="padding:8px 12px;color:#c0392b;font-weight:bold;">{{ object.expiry_date }}</td>
+      </tr>
+      <tr style="background:#f5f8fc;">
+        <td style="padding:8px 12px;font-weight:bold;">Status</td>
+        <td style="padding:8px 12px;">{{ dict(object._fields['state'].selection).get(object.state) }}</td>
+      </tr>
+    </table>
+    <p>Please take the necessary steps to renew this compliance before it expires.</p>
+    <div style="text-align:center;margin:28px 0;">
+      <a href="/web#id={{ object.id }}&amp;model=compliance.record&amp;view_type=form"
+         style="background:#1a4f8a;color:#fff;padding:12px 32px;border-radius:4px;text-decoration:none;font-size:15px;font-weight:bold;">
+        RENEW NOW
+      </a>
+    </div>
+    <p style="color:#888;font-size:12px;">This is an automated message from the Compliance Master System. Please do not reply directly to this email.</p>
+  </div>
+</div>
+        ]]></field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <!-- Manager / Level 2 Reminder -->
+    <record id="email_template_renewal_manager" model="mail.template">
+        <field name="name">Compliance Renewal Reminder – Manager (Level 2)</field>
+        <field name="model_id" ref="compliance_master.model_compliance_record"/>
+        <field name="subject">Compliance Renewal Reminder: {{ object.name }} – {{ object.department_id.name or '' }}</field>
+        <field name="email_from">{{ (object.env['ir.mail_server'].search([], limit=1).smtp_user or user.email) }}</field>
+        <field name="email_to">{{ object.responsible_manager_id.email }}</field>
+        <field name="body_html"><![CDATA[
+<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #e0e0e0;border-radius:6px;overflow:hidden;">
+  <div style="background:#1a6b3a;padding:20px 30px;">
+    <h2 style="color:#fff;margin:0;">Compliance Renewal Reminder</h2>
+    <p style="color:#b2e0c6;margin:4px 0 0;">Compliance Master System – Lake Cement Limited</p>
+  </div>
+  <div style="padding:24px 30px;">
+    <p>Dear <strong>{{ object.responsible_manager_id.name }}</strong>,</p>
+    <p>As the <strong>Level 2 Manager</strong>, please be informed that the following compliance record is approaching its renewal date:</p>
+    <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+      <tr style="background:#f5f8fc;">
+        <td style="padding:8px 12px;font-weight:bold;width:40%;">Compliance</td>
+        <td style="padding:8px 12px;">{{ object.name }}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 12px;font-weight:bold;">Agency</td>
+        <td style="padding:8px 12px;">{{ object.agency }}</td>
+      </tr>
+      <tr style="background:#f5f8fc;">
+        <td style="padding:8px 12px;font-weight:bold;">Department</td>
+        <td style="padding:8px 12px;">{{ object.department_id.name or '—' }}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 12px;font-weight:bold;">Direct Responsible</td>
+        <td style="padding:8px 12px;">{{ object.responsible_direct_id.name or '—' }}</td>
+      </tr>
+      <tr style="background:#f5f8fc;">
+        <td style="padding:8px 12px;font-weight:bold;">Expiry Date</td>
+        <td style="padding:8px 12px;color:#c0392b;font-weight:bold;">{{ object.expiry_date }}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 12px;font-weight:bold;">Status</td>
+        <td style="padding:8px 12px;">{{ dict(object._fields['state'].selection).get(object.state) }}</td>
+      </tr>
+    </table>
+    <div style="text-align:center;margin:28px 0;">
+      <a href="/web#id={{ object.id }}&amp;model=compliance.record&amp;view_type=form"
+         style="background:#1a6b3a;color:#fff;padding:12px 32px;border-radius:4px;text-decoration:none;font-size:15px;font-weight:bold;">
+        VIEW RECORD
+      </a>
+    </div>
+    <p style="color:#888;font-size:12px;">This is an automated message from the Compliance Master System.</p>
+  </div>
+</div>
+        ]]></field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <!-- Head Reminder -->
+    <record id="email_template_renewal_head" model="mail.template">
+        <field name="name">Compliance Renewal Reminder – Head</field>
+        <field name="model_id" ref="compliance_master.model_compliance_record"/>
+        <field name="subject">[ACTION REQUIRED] Compliance Renewal: {{ object.name }} – {{ object.department_id.name or '' }}</field>
+        <field name="email_from">{{ (object.env['ir.mail_server'].search([], limit=1).smtp_user or user.email) }}</field>
+        <field name="email_to">{{ object.responsible_head_id.email }}</field>
+        <field name="body_html"><![CDATA[
+<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #e0e0e0;border-radius:6px;overflow:hidden;">
+  <div style="background:#8b1a1a;padding:20px 30px;">
+    <h2 style="color:#fff;margin:0;">Compliance Renewal – Head Notification</h2>
+    <p style="color:#f5c6c6;margin:4px 0 0;">Compliance Master System – Lake Cement Limited</p>
+  </div>
+  <div style="padding:24px 30px;">
+    <p>Dear <strong>{{ object.responsible_head_id.name }}</strong>,</p>
+    <p>This compliance record requires immediate attention. As the <strong>Head responsible</strong>, please ensure renewal is actioned:</p>
+    <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+      <tr style="background:#fff5f5;">
+        <td style="padding:8px 12px;font-weight:bold;width:40%;">Compliance</td>
+        <td style="padding:8px 12px;">{{ object.name }}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 12px;font-weight:bold;">Agency</td>
+        <td style="padding:8px 12px;">{{ object.agency }}</td>
+      </tr>
+      <tr style="background:#fff5f5;">
+        <td style="padding:8px 12px;font-weight:bold;">Department</td>
+        <td style="padding:8px 12px;">{{ object.department_id.name or '—' }}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 12px;font-weight:bold;">Direct Responsible</td>
+        <td style="padding:8px 12px;">{{ object.responsible_direct_id.name or '—' }}</td>
+      </tr>
+      <tr style="background:#fff5f5;">
+        <td style="padding:8px 12px;font-weight:bold;">Manager</td>
+        <td style="padding:8px 12px;">{{ object.responsible_manager_id.name or '—' }}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 12px;font-weight:bold;">Expiry Date</td>
+        <td style="padding:8px 12px;color:#c0392b;font-weight:bold;">{{ object.expiry_date }}</td>
+      </tr>
+      <tr style="background:#fff5f5;">
+        <td style="padding:8px 12px;font-weight:bold;">Status</td>
+        <td style="padding:8px 12px;color:#c0392b;font-weight:bold;">{{ dict(object._fields['state'].selection).get(object.state) }}</td>
+      </tr>
+    </table>
+    <div style="text-align:center;margin:28px 0;">
+      <a href="/web#id={{ object.id }}&amp;model=compliance.record&amp;view_type=form"
+         style="background:#8b1a1a;color:#fff;padding:12px 32px;border-radius:4px;text-decoration:none;font-size:15px;font-weight:bold;">
+        VIEW &amp; ACTION
+      </a>
+    </div>
+    <p style="color:#888;font-size:12px;">This is an automated message from the Compliance Master System.</p>
+  </div>
+</div>
+        ]]></field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+</odoo>

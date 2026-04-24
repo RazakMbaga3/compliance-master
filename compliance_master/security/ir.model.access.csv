@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_compliance_record_user,compliance.record user,model_compliance_record,group_compliance_user,1,1,1,0
+access_compliance_record_manager,compliance.record manager,model_compliance_record,group_compliance_manager,1,1,1,1
+access_compliance_document_user,compliance.document user,model_compliance_document,group_compliance_user,1,1,1,0
+access_compliance_document_manager,compliance.document manager,model_compliance_document,group_compliance_manager,1,1,1,1

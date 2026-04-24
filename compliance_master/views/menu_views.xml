@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Top-level menu -->
+    <menuitem id="menu_compliance_master_root"
+              name="Compliance Master"
+              sequence="80"
+              web_icon="compliance_master,static/description/icon.png"/>
+
+    <!-- Dashboard -->
+    <menuitem id="menu_compliance_dashboard"
+              name="Dashboard"
+              parent="menu_compliance_master_root"
+              action="compliance_master.action_compliance_dashboard"
+              sequence="10"/>
+
+    <!-- All Records -->
+    <menuitem id="menu_compliance_records"
+              name="All Compliances"
+              parent="menu_compliance_master_root"
+              action="compliance_master.action_compliance_record"
+              sequence="20"/>
+
+    <!-- Overdue -->
+    <menuitem id="menu_compliance_overdue"
+              name="Overdue"
+              parent="menu_compliance_master_root"
+              action="compliance_master.action_compliance_overdue"
+              sequence="30"/>
+
+    <!-- Due for Renewal -->
+    <menuitem id="menu_compliance_due"
+              name="Due for Renewal"
+              parent="menu_compliance_master_root"
+              action="compliance_master.action_compliance_due"
+              sequence="40"/>
+
+    <!-- Documents -->
+    <menuitem id="menu_compliance_documents"
+              name="Documents"
+              parent="menu_compliance_master_root"
+              action="compliance_master.action_compliance_document"
+              sequence="50"/>
+</odoo>

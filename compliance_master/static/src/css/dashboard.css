@@ -1,0 +1,21 @@
+/* Compliance Master – badge colours */
+.badge.o_field_badge[data-value="overdue"] {
+    background-color: #c0392b !important;
+    color: #fff !important;
+}
+.badge.o_field_badge[data-value="due"] {
+    background-color: #e67e22 !important;
+    color: #fff !important;
+}
+.badge.o_field_badge[data-value="active"] {
+    background-color: #27ae60 !important;
+    color: #fff !important;
+}
+.badge.o_field_badge[data-value="under_renewal"] {
+    background-color: #2980b9 !important;
+    color: #fff !important;
+}
+.badge.o_field_badge[data-value="inactive"] {
+    background-color: #95a5a6 !important;
+    color: #fff !important;
+}

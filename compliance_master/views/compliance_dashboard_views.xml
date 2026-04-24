@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Dashboard action: opens the graph + pivot combined -->
+    <record id="action_compliance_dashboard" model="ir.actions.act_window">
+        <field name="name">Compliance Dashboard</field>
+        <field name="res_model">compliance.record</field>
+        <field name="view_mode">graph,pivot,tree</field>
+        <field name="search_view_id" ref="compliance_master.view_compliance_record_search"/>
+        <field name="context">{
+            'search_default_group_department': 1,
+            'graph_measure': '__count__'
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No compliance records found.
+            </p>
+            <p>Add your first compliance record to start tracking.</p>
+        </field>
+    </record>
+</odoo>

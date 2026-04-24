@@ -1,0 +1,18 @@
+# Claude Code settings
+.claude/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# Odoo
+*.log
+.odoo/
+
+# OS
+.DS_Store
+Thumbs.db
