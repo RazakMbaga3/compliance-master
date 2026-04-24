@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════
+         VEHICLE FORM VIEW
+    ══════════════════════════════════════════════════════ -->
+    <record id="view_compliance_vehicle_form" model="ir.ui.view">
+        <field name="name">compliance.vehicle.form</field>
+        <field name="model">compliance.vehicle</field>
+        <field name="arch" type="xml">
+            <form string="Vehicle">
+                <sheet>
+                    <!-- Smart buttons -->
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_compliances" type="object"
+                                class="oe_stat_button" icon="fa-certificate">
+                            <field name="compliance_count" widget="statinfo" string="Compliances"/>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-calendar"
+                                attrs="{'invisible': [('days_to_nearest_expiry', '=', 0)]}">
+                            <field name="days_to_nearest_expiry" widget="statinfo" string="Days to Expiry"/>
+                        </button>
+                    </div>
+
+                    <!-- Title -->
+                    <div class="oe_title">
+                        <label for="vehicle_reg"/>
+                        <h1>
+                            <field name="vehicle_reg" placeholder="e.g. T296DBZ" style="text-transform:uppercase;"/>
+                        </h1>
+                        <field name="overall_state" widget="badge"
+                               decoration-success="overall_state == 'active'"
+                               decoration-warning="overall_state == 'due'"
+                               decoration-danger="overall_state == 'overdue'"
+                               decoration-info="overall_state == 'under_renewal'"
+                               decoration-muted="overall_state == 'inactive'"/>
+                    </div>
+
+                    <!-- General info -->
+                    <group>
+                        <group string="Vehicle Details">
+                            <field name="vehicle_type"/>
+                            <field name="make_model"/>
+                            <field name="division_id"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Compliance Status Summary">
+                            <field name="insurance_expiry"  string="Insurance Expiry"/>
+                            <field name="insurance_state"   string="Insurance Status" widget="badge"
+                                   decoration-success="insurance_state == 'active'"
+                                   decoration-warning="insurance_state == 'due'"
+                                   decoration-danger="insurance_state == 'overdue'"
+                                   decoration-info="insurance_state == 'under_renewal'"/>
+                            <field name="road_lic_expiry"   string="Road Licence Expiry"/>
+                            <field name="road_lic_state"    string="Road Licence Status" widget="badge"
+                                   decoration-success="road_lic_state == 'active'"
+                                   decoration-warning="road_lic_state == 'due'"
+                                   decoration-danger="road_lic_state == 'overdue'"
+                                   decoration-info="road_lic_state == 'under_renewal'"/>
+                            <field name="tra_expiry"        string="TRA Sticker Expiry"/>
+                            <field name="tra_state"         string="TRA Status" widget="badge"
+                                   decoration-success="tra_state == 'active'"
+                                   decoration-warning="tra_state == 'due'"
+                                   decoration-danger="tra_state == 'overdue'"
+                                   decoration-info="tra_state == 'under_renewal'"/>
+                            <field name="weights_expiry"    string="Weights Cert. Expiry"/>
+                            <field name="weights_state"     string="Weights Status" widget="badge"
+                                   decoration-success="weights_state == 'active'"
+                                   decoration-warning="weights_state == 'due'"
+                                   decoration-danger="weights_state == 'overdue'"
+                                   decoration-info="weights_state == 'under_renewal'"/>
+                        </group>
+                    </group>
+
+                    <!-- Compliance records tab -->
+                    <notebook>
+                        <page string="All Compliance Records" name="compliances">
+                            <field name="compliance_ids"
+                                   context="{'default_vehicle_id': active_id,
+                                             'default_compliance_type': 'fleet',
+                                             'default_vehicle_reg': vehicle_reg}">
+                                <tree decoration-danger="state == 'overdue'"
+                                      decoration-warning="state == 'due'"
+                                      decoration-info="state == 'under_renewal'"
+                                      decoration-muted="state == 'inactive'">
+                                    <field name="agency"/>
+                                    <field name="name" string="Description"/>
+                                    <field name="certificate_number" string="Cert / Licence No."/>
+                                    <field name="valid_from"/>
+                                    <field name="expiry_date"/>
+                                    <field name="days_to_expiry" string="Days Left"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'active'"
+                                           decoration-warning="state == 'due'"
+                                           decoration-danger="state == 'overdue'"
+                                           decoration-info="state == 'under_renewal'"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Additional notes about this vehicle…"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════
+         VEHICLE TREE VIEW — consolidated compliance status per row
+    ══════════════════════════════════════════════════════ -->
+    <record id="view_compliance_vehicle_tree" model="ir.ui.view">
+        <field name="name">compliance.vehicle.tree</field>
+        <field name="model">compliance.vehicle</field>
+        <field name="arch" type="xml">
+            <tree string="Fleet Vehicles"
+                  decoration-danger="overall_state == 'overdue'"
+                  decoration-warning="overall_state == 'due'"
+                  decoration-info="overall_state == 'under_renewal'"
+                  decoration-muted="overall_state == 'inactive'">
+                <field name="vehicle_reg"/>
+                <field name="vehicle_type" optional="show"/>
+                <field name="make_model"   optional="show"/>
+                <field name="division_id"  optional="show"/>
+                <!-- Insurance -->
+                <field name="insurance_expiry" string="Insurance Exp." optional="show"/>
+                <field name="insurance_state"  string="Insurance" widget="badge"
+                       decoration-success="insurance_state == 'active'"
+                       decoration-warning="insurance_state == 'due'"
+                       decoration-danger="insurance_state == 'overdue'"
+                       decoration-info="insurance_state == 'under_renewal'"/>
+                <!-- Road Licence -->
+                <field name="road_lic_expiry" string="Road Lic. Exp." optional="show"/>
+                <field name="road_lic_state"  string="Road Lic." widget="badge"
+                       decoration-success="road_lic_state == 'active'"
+                       decoration-warning="road_lic_state == 'due'"
+                       decoration-danger="road_lic_state == 'overdue'"
+                       decoration-info="road_lic_state == 'under_renewal'"/>
+                <!-- TRA -->
+                <field name="tra_expiry" string="TRA Exp." optional="show"/>
+                <field name="tra_state"  string="TRA" widget="badge"
+                       decoration-success="tra_state == 'active'"
+                       decoration-warning="tra_state == 'due'"
+                       decoration-danger="tra_state == 'overdue'"
+                       decoration-info="tra_state == 'under_renewal'"/>
+                <!-- Weights -->
+                <field name="weights_expiry" string="Weights Exp." optional="show"/>
+                <field name="weights_state"  string="Weights" widget="badge"
+                       decoration-success="weights_state == 'active'"
+                       decoration-warning="weights_state == 'due'"
+                       decoration-danger="weights_state == 'overdue'"
+                       decoration-info="weights_state == 'under_renewal'"/>
+                <!-- Overall -->
+                <field name="days_to_nearest_expiry" string="Days to Expiry" optional="show"/>
+                <field name="overall_state" string="Overall" widget="badge"
+                       decoration-success="overall_state == 'active'"
+                       decoration-warning="overall_state == 'due'"
+                       decoration-danger="overall_state == 'overdue'"
+                       decoration-info="overall_state == 'under_renewal'"/>
+                <field name="compliance_count" string="Records"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════
+         VEHICLE KANBAN VIEW — one card per vehicle
+    ══════════════════════════════════════════════════════ -->
+    <record id="view_compliance_vehicle_kanban" model="ir.ui.view">
+        <field name="name">compliance.vehicle.kanban</field>
+        <field name="model">compliance.vehicle</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_small_column"
+                    default_group_by="overall_state"
+                    group_create="false">
+                <field name="vehicle_reg"/>
+                <field name="vehicle_type"/>
+                <field name="make_model"/>
+                <field name="division_id"/>
+                <field name="overall_state"/>
+                <field name="insurance_state"/>
+                <field name="road_lic_state"/>
+                <field name="tra_state"/>
+                <field name="weights_state"/>
+                <field name="insurance_expiry"/>
+                <field name="road_lic_expiry"/>
+                <field name="tra_expiry"/>
+                <field name="days_to_nearest_expiry"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click
+                            #{record.overall_state.raw_value == 'overdue' ? 'border-danger' :
+                              record.overall_state.raw_value == 'due' ? 'border-warning' : ''}">
+                            <div class="o_kanban_card_header" style="padding:8px 12px;">
+                                <strong style="font-size:15px;">
+                                    <t t-esc="record.vehicle_reg.value"/>
+                                </strong>
+                                <span t-if="record.vehicle_type.value"
+                                      style="color:#7f8c8d;font-size:11px;margin-left:6px;">
+                                    <t t-esc="record.vehicle_type.value"/>
+                                </span>
+                            </div>
+                            <div style="padding:6px 12px;font-size:12px;">
+                                <t t-if="record.make_model.value">
+                                    <div style="color:#555;margin-bottom:4px;">
+                                        <t t-esc="record.make_model.value"/>
+                                    </div>
+                                </t>
+                                <t t-if="record.division_id.value">
+                                    <div style="color:#888;margin-bottom:6px;font-size:11px;">
+                                        <t t-esc="record.division_id.value"/>
+                                    </div>
+                                </t>
+                                <!-- Compliance status pills -->
+                                <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
+                                    <t t-set="ins_clr"
+                                       t-value="record.insurance_state.raw_value == 'overdue' ? '#c0392b' :
+                                                record.insurance_state.raw_value == 'due'     ? '#e67e22' :
+                                                record.insurance_state.raw_value == 'active'  ? '#27ae60' : '#95a5a6'"/>
+                                    <span t-attf-style="background:#{ins_clr};color:#fff;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">
+                                        INS
+                                    </span>
+                                    <t t-set="rl_clr"
+                                       t-value="record.road_lic_state.raw_value == 'overdue' ? '#c0392b' :
+                                                record.road_lic_state.raw_value == 'due'     ? '#e67e22' :
+                                                record.road_lic_state.raw_value == 'active'  ? '#27ae60' : '#95a5a6'"/>
+                                    <span t-attf-style="background:#{rl_clr};color:#fff;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">
+                                        ROAD
+                                    </span>
+                                    <t t-set="tra_clr"
+                                       t-value="record.tra_state.raw_value == 'overdue' ? '#c0392b' :
+                                                record.tra_state.raw_value == 'due'     ? '#e67e22' :
+                                                record.tra_state.raw_value == 'active'  ? '#27ae60' : '#95a5a6'"/>
+                                    <span t-attf-style="background:#{tra_clr};color:#fff;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">
+                                        TRA
+                                    </span>
+                                </div>
+                                <t t-if="record.days_to_nearest_expiry.value">
+                                    <div style="margin-top:6px;font-size:11px;color:#555;">
+                                        Next expiry in
+                                        <strong><t t-esc="record.days_to_nearest_expiry.value"/> days</strong>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════
+         VEHICLE SEARCH VIEW
+    ══════════════════════════════════════════════════════ -->
+    <record id="view_compliance_vehicle_search" model="ir.ui.view">
+        <field name="name">compliance.vehicle.search</field>
+        <field name="model">compliance.vehicle</field>
+        <field name="arch" type="xml">
+            <search string="Search Vehicles">
+                <field name="vehicle_reg"/>
+                <field name="make_model"/>
+                <field name="division_id"/>
+                <!-- Overall status filters -->
+                <filter string="Fully Compliant"  name="f_active"   domain="[('overall_state','=','active')]"/>
+                <filter string="Due for Renewal"  name="f_due"      domain="[('overall_state','=','due')]"/>
+                <filter string="Non-Compliant"    name="f_overdue"  domain="[('overall_state','=','overdue')]"/>
+                <filter string="Under Renewal"    name="f_renewal"  domain="[('overall_state','=','under_renewal')]"/>
+                <separator/>
+                <!-- Per-compliance filters -->
+                <filter string="Insurance Overdue"   name="f_ins_ov"  domain="[('insurance_state','=','overdue')]"/>
+                <filter string="Road Lic. Overdue"   name="f_rl_ov"   domain="[('road_lic_state','=','overdue')]"/>
+                <filter string="TRA Overdue"         name="f_tra_ov"  domain="[('tra_state','=','overdue')]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="Division"      name="g_div"  context="{'group_by': 'division_id'}"/>
+                    <filter string="Vehicle Type"  name="g_type" context="{'group_by': 'vehicle_type'}"/>
+                    <filter string="Overall Status" name="g_st"  context="{'group_by': 'overall_state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════
+         VEHICLE GRAPH VIEW
+    ══════════════════════════════════════════════════════ -->
+    <record id="view_compliance_vehicle_graph" model="ir.ui.view">
+        <field name="name">compliance.vehicle.graph</field>
+        <field name="model">compliance.vehicle</field>
+        <field name="arch" type="xml">
+            <graph string="Fleet Compliance by Division" type="bar" stacked="True">
+                <field name="division_id"/>
+                <field name="overall_state"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════
+         ACTIONS
+    ══════════════════════════════════════════════════════ -->
+    <record id="action_compliance_vehicle" model="ir.actions.act_window">
+        <field name="name">Fleet Vehicles</field>
+        <field name="res_model">compliance.vehicle</field>
+        <field name="view_mode">tree,kanban,form,graph</field>
+        <field name="search_view_id" ref="view_compliance_vehicle_search"/>
+        <field name="context">{'search_default_g_div': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No vehicles yet.</p>
+            <p>Go to <b>Configuration → Generate Fleet Vehicles</b> to auto-create vehicle
+               records from your imported fleet compliance data.</p>
+        </field>
+    </record>
+
+    <record id="action_compliance_vehicle_overdue" model="ir.actions.act_window">
+        <field name="name">Non-Compliant Vehicles</field>
+        <field name="res_model">compliance.vehicle</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('overall_state', '=', 'overdue')]</field>
+    </record>
+
+    <record id="action_compliance_vehicle_due" model="ir.actions.act_window">
+        <field name="name">Vehicles Due for Renewal</field>
+        <field name="res_model">compliance.vehicle</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('overall_state', 'in', ['due', 'under_renewal'])]</field>
+    </record>
+</odoo>

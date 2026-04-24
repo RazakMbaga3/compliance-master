@@ -6,3 +6,6 @@ access_compliance_document_manager,compliance.document manager,model_compliance_
 access_compliance_division_user,compliance.division user,model_compliance_division,group_compliance_user,1,0,0,0
 access_compliance_division_manager,compliance.division manager,model_compliance_division,group_compliance_manager,1,1,1,1
 access_compliance_import_wizard,compliance.import.wizard,model_compliance_import_wizard,group_compliance_manager,1,1,1,1
+access_compliance_vehicle_user,compliance.vehicle user,model_compliance_vehicle,group_compliance_user,1,0,0,0
+access_compliance_vehicle_manager,compliance.vehicle manager,model_compliance_vehicle,group_compliance_manager,1,1,1,1
+access_compliance_fleet_wizard,compliance.fleet.wizard,model_compliance_fleet_wizard,group_compliance_manager,1,1,1,1

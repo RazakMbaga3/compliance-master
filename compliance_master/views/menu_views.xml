@@ -1,47 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Top-level menu -->
+    <!-- ── Top-level ─────────────────────────────────────────── -->
     <menuitem id="menu_compliance_master_root"
               name="Compliance Master"
               sequence="80"
               web_icon="compliance_master,static/description/icon.svg"/>
 
-    <!-- Dashboard -->
+    <!-- ── Dashboard ─────────────────────────────────────────── -->
     <menuitem id="menu_compliance_dashboard"
               name="Dashboard"
               parent="menu_compliance_master_root"
               action="compliance_master.action_compliance_dashboard"
               sequence="10"/>
 
-    <!-- All Records -->
+    <!-- ── All Compliances ───────────────────────────────────── -->
     <menuitem id="menu_compliance_records"
               name="All Compliances"
               parent="menu_compliance_master_root"
               action="compliance_master.action_compliance_record"
               sequence="20"/>
 
-    <!-- Overdue -->
+    <!-- ── Overdue ───────────────────────────────────────────── -->
     <menuitem id="menu_compliance_overdue"
               name="Overdue"
               parent="menu_compliance_master_root"
               action="compliance_master.action_compliance_overdue"
               sequence="30"/>
 
-    <!-- Due for Renewal -->
+    <!-- ── Due for Renewal ───────────────────────────────────── -->
     <menuitem id="menu_compliance_due"
               name="Due for Renewal"
               parent="menu_compliance_master_root"
               action="compliance_master.action_compliance_due"
               sequence="40"/>
 
-    <!-- Documents -->
+    <!-- ── Documents ─────────────────────────────────────────── -->
     <menuitem id="menu_compliance_documents"
               name="Documents"
               parent="menu_compliance_master_root"
               action="compliance_master.action_compliance_document"
               sequence="50"/>
 
-    <!-- ── Configuration sub-menu ── -->
+    <!-- ── Fleet sub-menu ────────────────────────────────────── -->
+    <menuitem id="menu_compliance_fleet_root"
+              name="Fleet"
+              parent="menu_compliance_master_root"
+              sequence="60"/>
+
+    <menuitem id="menu_compliance_fleet_vehicles"
+              name="Vehicles"
+              parent="menu_compliance_fleet_root"
+              action="compliance_master.action_compliance_vehicle"
+              sequence="10"/>
+
+    <menuitem id="menu_compliance_fleet_overdue"
+              name="Non-Compliant Vehicles"
+              parent="menu_compliance_fleet_root"
+              action="compliance_master.action_compliance_vehicle_overdue"
+              sequence="20"/>
+
+    <menuitem id="menu_compliance_fleet_due"
+              name="Vehicles Due for Renewal"
+              parent="menu_compliance_fleet_root"
+              action="compliance_master.action_compliance_vehicle_due"
+              sequence="30"/>
+
+    <!-- ── Configuration sub-menu ───────────────────────────── -->
     <menuitem id="menu_compliance_config"
               name="Configuration"
               parent="menu_compliance_master_root"
@@ -59,4 +83,10 @@
               parent="menu_compliance_config"
               action="compliance_master.action_compliance_import_wizard"
               sequence="20"/>
+
+    <menuitem id="menu_compliance_fleet_generate"
+              name="Generate Fleet Vehicles"
+              parent="menu_compliance_config"
+              action="compliance_master.action_compliance_fleet_wizard"
+              sequence="30"/>
 </odoo>

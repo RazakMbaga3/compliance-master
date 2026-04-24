@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_compliance_fleet_wizard_form" model="ir.ui.view">
+        <field name="name">compliance.fleet.wizard.form</field>
+        <field name="model">compliance.fleet.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate Fleet Vehicle Records">
+
+                <!-- Analysis results (shown after analyse) -->
+                <group attrs="{'invisible': [('fleet_count','=',0)]}">
+                    <group string="Fleet Data Found">
+                        <field name="fleet_count"  readonly="1" string="Fleet Compliance Records"/>
+                        <field name="reg_count"    readonly="1" string="Unique Vehicle Reg. Numbers"/>
+                        <field name="exist_count"  readonly="1" string="Already Have Vehicle Records"/>
+                        <field name="new_count"    readonly="1" string="New Vehicles to Create"/>
+                    </group>
+                </group>
+
+                <!-- Instructions (shown before analyse) -->
+                <group attrs="{'invisible': [('fleet_count','!=',0), ('state','!=','draft')]}">
+                    <div style="background:#e8f4fd;border-left:4px solid #2980b9;
+                                padding:12px 16px;border-radius:4px;font-size:13px;">
+                        <strong>What this does:</strong>
+                        <ul style="margin:8px 0 0 16px;">
+                            <li>Scans all compliance records where type = <b>Fleet / Vehicle</b></li>
+                            <li>Groups them by vehicle registration number</li>
+                            <li>Creates one <b>compliance.vehicle</b> record per unique reg number</li>
+                            <li>Links each compliance record (Insurance / Road Lic / TRA / Weights)
+                                to its vehicle for consolidated status tracking</li>
+                        </ul>
+                        <p style="margin:10px 0 0;color:#c0392b;">
+                            <b>Run the Excel import first</b> before generating vehicles.
+                        </p>
+                    </div>
+                </group>
+
+                <!-- Done state -->
+                <group attrs="{'invisible': [('state','!=','done')]}">
+                    <field name="result_msg" readonly="1" nolabel="1"
+                           widget="text"
+                           style="font-family:monospace;background:#f5f7fa;
+                                  padding:12px;border-radius:4px;font-size:12px;"/>
+                </group>
+
+                <field name="state" invisible="1"/>
+
+                <footer>
+                    <button name="action_analyse" string="Analyse →"
+                            type="object" class="btn-primary"
+                            attrs="{'invisible': [('state','!=','draft'), ('fleet_count','!=',0)]}"/>
+                    <button name="action_generate" string="Generate Vehicles"
+                            type="object" class="btn-primary"
+                            attrs="{'invisible': [('fleet_count','=',0)]}"
+                            confirm="This will create vehicle records and link compliance data. Continue?"/>
+                    <button name="action_open_fleet" string="View Fleet"
+                            type="object"
+                            attrs="{'invisible': [('state','!=','done')]}"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_compliance_fleet_wizard" model="ir.actions.act_window">
+        <field name="name">Generate Fleet Vehicles</field>
+        <field name="res_model">compliance.fleet.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

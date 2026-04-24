@@ -67,6 +67,11 @@ class ComplianceRecord(models.Model):
 
     # ── Fleet / Vehicle (only for fleet type) ─────────────────────────────────
     vehicle_reg = fields.Char(string='Vehicle Reg. No.', tracking=True)
+    vehicle_id  = fields.Many2one(
+        'compliance.vehicle', string='Vehicle',
+        tracking=True, ondelete='set null',
+        help='Linked vehicle record (auto-assigned when fleet records are generated)',
+    )
 
     # ── Frequency ─────────────────────────────────────────────────────────────
     frequency = fields.Selection([
