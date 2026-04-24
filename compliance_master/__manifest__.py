@@ -1,6 +1,6 @@
 {
     'name': 'Compliance Master',
-    'version': '15.0.2.0.0',
+    'version': '15.0.3.0.0',
     'category': 'Compliance',
     'summary': 'Track licences, certificates and regulatory compliances with automated renewal reminders',
     'author': 'Lake Cement Limited',
@@ -13,6 +13,7 @@
         'data/mail_templates.xml',
         'data/scheduled_actions.xml',
         'views/compliance_division_views.xml',
+        'views/compliance_import_wizard_views.xml',
         'views/compliance_record_views.xml',
         'views/compliance_document_views.xml',
         'views/compliance_dashboard_views.xml',

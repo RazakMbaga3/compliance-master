@@ -53,4 +53,10 @@
               parent="menu_compliance_config"
               action="compliance_master.action_compliance_division"
               sequence="10"/>
+
+    <menuitem id="menu_compliance_import"
+              name="Import from Excel"
+              parent="menu_compliance_config"
+              action="compliance_master.action_compliance_import_wizard"
+              sequence="20"/>
 </odoo>
