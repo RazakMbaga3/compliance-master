@@ -26,4 +26,28 @@ records._compute_state()
         <field name="active" eval="True"/>
         <field name="doall" eval="False"/>
     </record>
+
+    <record id="ir_cron_compliance_periodic_generate" model="ir.cron">
+        <field name="name">Compliance Master: Generate Periodic Submissions</field>
+        <field name="model_id" ref="compliance_master.model_compliance_periodic_obligation"/>
+        <field name="state">code</field>
+        <field name="code">model.generate_submissions_for_period()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="doall" eval="False"/>
+    </record>
+
+    <record id="ir_cron_compliance_periodic_reminders" model="ir.cron">
+        <field name="name">Compliance Master: Send Periodic Filing Reminders</field>
+        <field name="model_id" ref="compliance_master.model_compliance_periodic_submission"/>
+        <field name="state">code</field>
+        <field name="code">model.send_due_reminders()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="doall" eval="False"/>
+    </record>
 </odoo>

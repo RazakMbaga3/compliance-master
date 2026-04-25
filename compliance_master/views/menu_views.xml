@@ -41,6 +41,37 @@
               action="compliance_master.action_compliance_document"
               sequence="50"/>
 
+        <!-- ── Periodic Filings sub-menu ─────────────────── -->
+    <menuitem id="menu_compliance_periodic_root"
+              name="Periodic Filings"
+              parent="menu_compliance_master_root"
+              sequence="55"/>
+
+    <menuitem id="menu_compliance_periodic_checklist"
+              name="Submission Checklist"
+              parent="menu_compliance_periodic_root"
+              action="compliance_master.action_compliance_submission_checklist"
+              sequence="10"/>
+
+    <menuitem id="menu_compliance_periodic_overdue"
+              name="Overdue Submissions"
+              parent="menu_compliance_periodic_root"
+              action="compliance_master.action_compliance_submission_overdue"
+              sequence="20"/>
+
+    <menuitem id="menu_compliance_periodic_all"
+              name="All Submissions"
+              parent="menu_compliance_periodic_root"
+              action="compliance_master.action_compliance_submission_all"
+              sequence="30"/>
+
+    <menuitem id="menu_compliance_periodic_obligations"
+              name="Obligations"
+              parent="menu_compliance_periodic_root"
+              action="compliance_master.action_compliance_obligation"
+              sequence="40"
+              groups="compliance_master.group_compliance_manager"/>
+
     <!-- ── Fleet sub-menu ────────────────────────────────────── -->
     <menuitem id="menu_compliance_fleet_root"
               name="Fleet"

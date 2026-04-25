@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     OBLIGATION VIEWS
+══════════════════════════════════════════════════════════════════════ -->
+
+    <record id="view_compliance_obligation_form" model="ir.ui.view">
+        <field name="name">compliance.periodic.obligation.form</field>
+        <field name="model">compliance.periodic.obligation</field>
+        <field name="arch" type="xml">
+            <form string="Periodic Obligation">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_submissions" type="object"
+                                class="oe_stat_button" icon="fa-list-alt">
+                            <field name="submission_count" widget="statinfo" string="Submissions"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. VAT Payment &amp; Return"/></h1>
+                    </div>
+                    <group>
+                        <group string="Obligation Details">
+                            <field name="agency"/>
+                            <field name="division_id"/>
+                            <field name="department_id"/>
+                            <field name="frequency"/>
+                            <field name="due_day"
+                                   help="Day of the month on which this filing is due (e.g. 7 = 7th of the month)"/>
+                            <field name="due_month"
+                                   attrs="{'invisible': [('frequency', '!=', 'annual')]}"
+                                   help="Month number (1=Jan … 12=Dec)"/>
+                            <field name="start_date"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Responsibility">
+                            <field name="responsible_direct_id"/>
+                            <field name="responsible_manager_id"/>
+                            <field name="responsible_head_id"/>
+                            <field name="notify_days_before"/>
+                        </group>
+                    </group>
+                    <group string="Description">
+                        <field name="description" nolabel="1"
+                               placeholder="Additional context, instructions or reference links…"/>
+                    </group>
+                    <notebook>
+                        <page string="Submission History" name="submissions">
+                            <field name="submission_ids">
+                                <tree decoration-danger="state == 'overdue'"
+                                      decoration-warning="state == 'late'"
+                                      decoration-success="state == 'submitted'"
+                                      decoration-muted="state in ('waived','future')"
+                                      default_order="due_date desc">
+                                    <field name="period_label"/>
+                                    <field name="due_date"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'submitted'"
+                                           decoration-warning="state == 'late'"
+                                           decoration-danger="state == 'overdue'"
+                                           decoration-info="state == 'pending'"
+                                           decoration-muted="state in ('waived','future')"/>
+                                    <field name="submitted_date"/>
+                                    <field name="submitted_by"/>
+                                    <field name="receipt_ref"/>
+                                    <field name="amount" optional="hide"/>
+                                    <field name="days_overdue" optional="show"/>
+                                    <button name="action_mark_submitted" type="object"
+                                            string="Mark Submitted" icon="fa-check"
+                                            class="btn-sm btn-success"
+                                            attrs="{'invisible': [('state', 'in', ['submitted','late','waived'])]}"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_compliance_obligation_tree" model="ir.ui.view">
+        <field name="name">compliance.periodic.obligation.tree</field>
+        <field name="model">compliance.periodic.obligation</field>
+        <field name="arch" type="xml">
+            <tree string="Periodic Obligations"
+                  decoration-muted="not active">
+                <field name="name"/>
+                <field name="agency"/>
+                <field name="division_id" optional="show"/>
+                <field name="department_id" optional="show"/>
+                <field name="frequency"/>
+                <field name="due_day" string="Due Day"/>
+                <field name="responsible_direct_id" optional="show"/>
+                <field name="current_period_state" string="This Period" widget="badge"
+                       decoration-success="current_period_state == 'submitted'"
+                       decoration-warning="current_period_state == 'late'"
+                       decoration-danger="current_period_state == 'overdue'"
+                       decoration-info="current_period_state == 'pending'"
+                       decoration-muted="current_period_state in ('waived','future','')"/>
+                <field name="last_submission_date" string="Last Filed" optional="show"/>
+                <field name="submission_count" string="Total Filings"/>
+                <field name="active" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_compliance_obligation_search" model="ir.ui.view">
+        <field name="name">compliance.periodic.obligation.search</field>
+        <field name="model">compliance.periodic.obligation</field>
+        <field name="arch" type="xml">
+            <search string="Search Obligations">
+                <field name="name"/>
+                <field name="agency"/>
+                <field name="division_id"/>
+                <field name="department_id"/>
+                <filter string="Monthly"   name="f_monthly"   domain="[('frequency','=','monthly')]"/>
+                <filter string="Quarterly" name="f_quarterly" domain="[('frequency','=','quarterly')]"/>
+                <filter string="Annual"    name="f_annual"    domain="[('frequency','=','annual')]"/>
+                <separator/>
+                <filter string="Overdue This Period" name="f_overdue"
+                        domain="[('current_period_state','=','overdue')]"/>
+                <filter string="Pending This Period" name="f_pending"
+                        domain="[('current_period_state','=','pending')]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="Division"   name="g_div"  context="{'group_by':'division_id'}"/>
+                    <filter string="Frequency"  name="g_freq" context="{'group_by':'frequency'}"/>
+                    <filter string="Agency"     name="g_agcy" context="{'group_by':'agency'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_compliance_obligation" model="ir.actions.act_window">
+        <field name="name">Periodic Obligations</field>
+        <field name="res_model">compliance.periodic.obligation</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_compliance_obligation_search"/>
+    </record>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     SUBMISSION CHECKLIST VIEWS
+══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- FORM for individual submission -->
+    <record id="view_compliance_submission_form" model="ir.ui.view">
+        <field name="name">compliance.periodic.submission.form</field>
+        <field name="model">compliance.periodic.submission</field>
+        <field name="arch" type="xml">
+            <form string="Periodic Submission">
+                <header>
+                    <button name="action_mark_submitted" string="Mark as Submitted"
+                            type="object" class="btn-primary"
+                            attrs="{'invisible': [('state','in',['submitted','late','waived'])]}"/>
+                    <button name="action_mark_waived" string="Mark Waived / N/A"
+                            type="object"
+                            attrs="{'invisible': [('state','in',['submitted','late','waived'])]}"/>
+                    <button name="action_reset_pending" string="Reset to Pending"
+                            type="object"
+                            attrs="{'invisible': [('state','in',['pending','overdue'])]}"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="pending,submitted,overdue"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="display_name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Period Details">
+                            <field name="obligation_id"/>
+                            <field name="period_label"/>
+                            <field name="period_start"/>
+                            <field name="period_end"/>
+                            <field name="due_date"/>
+                            <field name="days_overdue"
+                                   attrs="{'invisible': [('days_overdue','=',0)]}"
+                                   style="color:#c0392b;font-weight:bold;"/>
+                        </group>
+                        <group string="Submission Details">
+                            <field name="submitted_date"/>
+                            <field name="submitted_by"/>
+                            <field name="receipt_ref"/>
+                            <field name="amount"/>
+                        </group>
+                    </group>
+                    <group string="Notes">
+                        <field name="notes" nolabel="1" placeholder="Any notes about this submission…"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- CHECKLIST TREE — the main monthly view -->
+    <record id="view_compliance_submission_tree" model="ir.ui.view">
+        <field name="name">compliance.periodic.submission.tree</field>
+        <field name="model">compliance.periodic.submission</field>
+        <field name="arch" type="xml">
+            <tree string="Submission Checklist"
+                  decoration-danger="state == 'overdue'"
+                  decoration-warning="state == 'late'"
+                  decoration-success="state == 'submitted'"
+                  decoration-info="state == 'pending'"
+                  decoration-muted="state in ('waived','future')"
+                  default_order="due_date asc">
+                <field name="period_label"  string="Period"/>
+                <field name="obligation_id" string="Obligation"/>
+                <field name="agency"/>
+                <field name="division_id"   optional="show"/>
+                <field name="frequency"     optional="show"/>
+                <field name="due_date"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'submitted'"
+                       decoration-warning="state == 'late'"
+                       decoration-danger="state == 'overdue'"
+                       decoration-info="state == 'pending'"
+                       decoration-muted="state in ('waived','future')"/>
+                <field name="days_overdue"    optional="show" string="Days Overdue"/>
+                <field name="submitted_date"  optional="show"/>
+                <field name="submitted_by"    optional="show"/>
+                <field name="receipt_ref"     optional="show"/>
+                <field name="amount"          optional="hide"/>
+                <button name="action_mark_submitted" type="object"
+                        string="✓ Submit" class="btn-sm btn-success"
+                        attrs="{'invisible': [('state','in',['submitted','late','waived'])]}"/>
+                <button name="action_mark_waived" type="object"
+                        string="Waive" class="btn-sm btn-secondary"
+                        attrs="{'invisible': [('state','in',['submitted','late','waived'])]}"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- SUBMISSION SEARCH -->
+    <record id="view_compliance_submission_search" model="ir.ui.view">
+        <field name="name">compliance.periodic.submission.search</field>
+        <field name="model">compliance.periodic.submission</field>
+        <field name="arch" type="xml">
+            <search string="Search Submissions">
+                <field name="obligation_id"/>
+                <field name="agency"/>
+                <field name="period_label"/>
+                <field name="receipt_ref"/>
+                <!-- Status filters -->
+                <filter string="Pending"        name="f_pending"   domain="[('state','=','pending')]"/>
+                <filter string="Overdue"        name="f_overdue"   domain="[('state','=','overdue')]"/>
+                <filter string="Submitted"      name="f_submitted" domain="[('state','in',['submitted','late'])]"/>
+                <filter string="Late"           name="f_late"      domain="[('state','=','late')]"/>
+                <filter string="Waived"         name="f_waived"    domain="[('state','=','waived')]"/>
+                <separator/>
+                <!-- Frequency filters -->
+                <filter string="Monthly"        name="f_monthly"   domain="[('frequency','=','monthly')]"/>
+                <filter string="Quarterly"      name="f_quarterly" domain="[('frequency','=','quarterly')]"/>
+                <filter string="Annual"         name="f_annual"    domain="[('frequency','=','annual')]"/>
+                <separator/>
+                <!-- Period quick filters -->
+                <filter string="This Month" name="f_this_month"
+                        domain="[('period_start','=', context_today().replace(day=1).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <group expand="1" string="Group By">
+                    <filter string="Period"     name="g_period"  context="{'group_by':'period_label'}"/>
+                    <filter string="Obligation" name="g_oblig"   context="{'group_by':'obligation_id'}"/>
+                    <filter string="Division"   name="g_div"     context="{'group_by':'division_id'}"/>
+                    <filter string="Status"     name="g_state"   context="{'group_by':'state'}"/>
+                    <filter string="Frequency"  name="g_freq"    context="{'group_by':'frequency'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- PIVOT — compliance rate matrix -->
+    <record id="view_compliance_submission_pivot" model="ir.ui.view">
+        <field name="name">compliance.periodic.submission.pivot</field>
+        <field name="model">compliance.periodic.submission</field>
+        <field name="arch" type="xml">
+            <pivot string="Submission Compliance Matrix">
+                <field name="obligation_id" type="row"/>
+                <field name="period_label"  type="col"/>
+                <field name="state"         type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- GRAPH -->
+    <record id="view_compliance_submission_graph" model="ir.ui.view">
+        <field name="name">compliance.periodic.submission.graph</field>
+        <field name="model">compliance.periodic.submission</field>
+        <field name="arch" type="xml">
+            <graph string="Submissions by Period &amp; Status" type="bar" stacked="True">
+                <field name="period_label"/>
+                <field name="state"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- ACTIONS -->
+    <record id="action_compliance_submission_checklist" model="ir.actions.act_window">
+        <field name="name">Submission Checklist</field>
+        <field name="res_model">compliance.periodic.submission</field>
+        <field name="view_mode">tree,form,pivot,graph</field>
+        <field name="search_view_id" ref="view_compliance_submission_search"/>
+        <field name="context">{
+            'search_default_f_this_month': 1,
+            'search_default_g_period': 1
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No submissions yet for this period.</p>
+            <p>Use <b>Configuration → Generate Periodic Submissions</b> to create
+               the current month's checklist.</p>
+        </field>
+    </record>
+
+    <record id="action_compliance_submission_overdue" model="ir.actions.act_window">
+        <field name="name">Overdue Submissions</field>
+        <field name="res_model">compliance.periodic.submission</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('state','=','overdue')]</field>
+    </record>
+
+    <record id="action_compliance_submission_all" model="ir.actions.act_window">
+        <field name="name">All Submissions</field>
+        <field name="res_model">compliance.periodic.submission</field>
+        <field name="view_mode">tree,form,pivot,graph</field>
+        <field name="search_view_id" ref="view_compliance_submission_search"/>
+        <field name="context">{'search_default_g_period': 1}</field>
+    </record>
+
+</odoo>

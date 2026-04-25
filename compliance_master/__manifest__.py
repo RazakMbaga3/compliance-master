@@ -5,6 +5,7 @@
     'summary': 'Track licences, certificates and regulatory compliances with automated renewal reminders',
     'author': 'Lake Cement Limited',
     'depends': ['base', 'mail', 'hr'],
+    'external_dependencies': {'python': ['openpyxl']},
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
@@ -18,6 +19,7 @@
         'views/compliance_vehicle_views.xml',
         'views/compliance_record_views.xml',
         'views/compliance_document_views.xml',
+        'views/compliance_periodic_views.xml',
         'views/compliance_dashboard_views.xml',
         'views/menu_views.xml',
     ],
