@@ -4,36 +4,19 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
-# Maps raw Excel status strings to the 5 canonical states
 EXCEL_STATUS_MAP = {
-    # active variants
-    'active': 'active',
-    'valid': 'active',
-    'available': 'active',
-    '√': 'active',
-    'renewed': 'active',
-    'submitted yearly': 'active',
-    'submitted quarterly': 'active',
-    '90 days': 'active',
-    'yes': 'active',
-    # under_renewal variants
-    'under renewal': 'under_renewal',
-    'under renewal fees paid': 'under_renewal',
-    'on process': 'under_renewal',
-    'under renewal fees': 'under_renewal',
-    # overdue variants
-    'not valid': 'overdue',
-    'expired': 'overdue',
-    # inactive variants
-    'inactive': 'inactive',
-    'not applied': 'inactive',
-    # due variants
+    'active': 'active', 'valid': 'active', 'available': 'active',
+    '√': 'active', 'renewed': 'active', 'submitted yearly': 'active',
+    'submitted quarterly': 'active', '90 days': 'active', 'yes': 'active',
+    'under renewal': 'under_renewal', 'under renewal fees paid': 'under_renewal',
+    'on process': 'under_renewal', 'under renewal fees': 'under_renewal',
+    'not valid': 'overdue', 'expired': 'overdue',
+    'inactive': 'inactive', 'not applied': 'inactive',
     'due': 'due',
 }
 
 
 def map_excel_status(raw):
-    """Normalise any raw Excel status string to one of the 5 canonical states."""
     if not raw:
         return 'active'
     return EXCEL_STATUS_MAP.get(str(raw).strip().lower(), 'active')
@@ -65,12 +48,11 @@ class ComplianceRecord(models.Model):
     agency = fields.Char(string='Agency / Institution / Govt Body', required=True, tracking=True)
     location_custodian = fields.Char(string='Location / Custodian', tracking=True)
 
-    # ── Fleet / Vehicle (only for fleet type) ─────────────────────────────────
+    # ── Fleet / Vehicle ───────────────────────────────────────────────────────
     vehicle_reg = fields.Char(string='Vehicle Reg. No.', tracking=True)
-    vehicle_id  = fields.Many2one(
+    vehicle_id = fields.Many2one(
         'compliance.vehicle', string='Vehicle',
         tracking=True, ondelete='set null',
-        help='Linked vehicle record (auto-assigned when fleet records are generated)',
     )
 
     # ── Frequency ─────────────────────────────────────────────────────────────
@@ -95,14 +77,13 @@ class ComplianceRecord(models.Model):
     responsible_head_id    = fields.Many2one('res.users', string='Responsible – Head', tracking=True)
 
     # ── Validity ──────────────────────────────────────────────────────────────
-    origin_date   = fields.Date(string='Origin Date', tracking=True)
-    valid_from    = fields.Date(string='Valid From', tracking=True)
-    expiry_date   = fields.Date(string='Expiry Date / Valid To', tracking=True)
-    renewal_date  = fields.Date(string='Renewal Date', tracking=True)
-    # For periodic submissions: day of month / quarter the obligation falls due
-    due_day_text  = fields.Char(string='Due On (periodic)', help='e.g. "7th of every month", "30th every quarter"')
+    origin_date  = fields.Date(string='Origin Date', tracking=True)
+    valid_from   = fields.Date(string='Valid From', tracking=True)
+    expiry_date  = fields.Date(string='Expiry Date / Valid To', tracking=True)
+    renewal_date = fields.Date(string='Renewal Date', tracking=True)
+    due_day_text = fields.Char(string='Due On (periodic)')
 
-    # ── Notification thresholds (days before expiry) ───────────────────────────
+    # ── Notification thresholds ───────────────────────────────────────────────
     notify_direct_days  = fields.Integer(string='Notify Direct (days before)',  default=30)
     notify_manager_days = fields.Integer(string='Notify Manager (days before)', default=20)
     notify_head_days    = fields.Integer(string='Notify Head (days before)',    default=20)
@@ -110,27 +91,27 @@ class ComplianceRecord(models.Model):
     remarks = fields.Text(string='Remarks')
 
     # ── Documents ─────────────────────────────────────────────────────────────
-    document_ids       = fields.One2many('compliance.document', 'compliance_id', string='Documents & Versions')
-    document_count     = fields.Integer(compute='_compute_document_count', string='Documents')
+    document_ids        = fields.One2many('compliance.document', 'compliance_id', string='Documents & Versions')
+    document_count      = fields.Integer(compute='_compute_document_count', string='Documents')
     current_document_id = fields.Many2one('compliance.document', string='Current Document',
                                           compute='_compute_current_document', store=True)
 
-    # ── Status ────────────────────────────────────────────────────────────────
+    # ── Status (plain field — updated by _auto_update_state) ─────────────────
     state = fields.Selection([
         ('active',        'Active'),
         ('due',           'Due for Renewal'),
         ('under_renewal', 'Under Renewal'),
         ('overdue',       'Overdue'),
         ('inactive',      'Inactive'),
-    ], string='Status', default='active', tracking=True, compute='_compute_state', store=True)
+    ], string='Status', default='active', tracking=True)
 
     # ── Notification tracking ─────────────────────────────────────────────────
     notified_direct  = fields.Boolean(default=False)
     notified_manager = fields.Boolean(default=False)
     notified_head    = fields.Boolean(default=False)
 
-    # ── Days remaining (for list view colouring) ──────────────────────────────
-    days_to_expiry = fields.Integer(string='Days to Expiry', compute='_compute_days_to_expiry', store=True)
+    # ── Days remaining ────────────────────────────────────────────────────────
+    days_to_expiry = fields.Integer(string='Days to Expiry', compute='_compute_days_to_expiry')
 
     # ══════════════════════════════════════════════════════════════════════════
     # ORM overrides
@@ -140,7 +121,24 @@ class ComplianceRecord(models.Model):
     def create(self, vals):
         if vals.get('ref', 'New') == 'New':
             vals['ref'] = self.env['ir.sequence'].next_by_code('compliance.record') or 'New'
-        return super().create(vals)
+        rec = super().create(vals)
+        rec._auto_update_state()
+        return rec
+
+    def write(self, vals):
+        result = super().write(vals)
+        if 'expiry_date' in vals:
+            today = date.today()
+            for rec in self:
+                rec._auto_update_state()
+                if rec.expiry_date and rec.expiry_date > today:
+                    self.env.cr.execute(
+                        "UPDATE compliance_record SET notified_direct=false,"
+                        "notified_manager=false,notified_head=false WHERE id=%s",
+                        (rec.id,)
+                    )
+                    rec.invalidate_cache(fnames=['notified_direct', 'notified_manager', 'notified_head'])
+        return result
 
     # ══════════════════════════════════════════════════════════════════════════
     # Computed fields
@@ -163,17 +161,14 @@ class ComplianceRecord(models.Model):
         for rec in self:
             rec.days_to_expiry = (rec.expiry_date - today).days if rec.expiry_date else 0
 
-    @api.depends('expiry_date', 'days_to_expiry')
-    def _compute_state(self):
+    def _auto_update_state(self):
+        """Auto-set state from expiry date. Skips manually locked states."""
         today = date.today()
         for rec in self:
-            # Manual states must not be auto-overwritten
             if rec.state in ('inactive', 'under_renewal'):
                 continue
             if not rec.expiry_date:
-                # Periodic submissions and lifetime records stay active
-                if rec.state not in ('inactive', 'under_renewal'):
-                    rec.state = 'active'
+                rec.state = 'active'
                 continue
             days_left = (rec.expiry_date - today).days
             if days_left < 0:
@@ -192,11 +187,11 @@ class ComplianceRecord(models.Model):
 
     def action_set_active(self):
         self.write({
-            'state': 'active',
             'notified_direct': False,
             'notified_manager': False,
             'notified_head': False,
         })
+        self._auto_update_state()
 
     def action_set_inactive(self):
         self.write({'state': 'inactive'})

@@ -120,7 +120,8 @@ class CompliancePeriodicObligation(models.Model):
         today = date.today()
         for ob in self:
             done = ob.submission_ids.filtered(lambda s: s.state in ('submitted', 'late'))
-            ob.last_submission_date = max(done.mapped('submitted_date')) if done else False
+            dates = [d for d in done.mapped('submitted_date') if d]
+            ob.last_submission_date = max(dates) if dates else False
 
             # Find the submission whose period contains today
             current = ob.submission_ids.filtered(

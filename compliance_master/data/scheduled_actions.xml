@@ -18,7 +18,7 @@
         <field name="state">code</field>
         <field name="code">
 records = model.search([('state', 'not in', ['inactive', 'under_renewal']), ('expiry_date', '!=', False)])
-records._compute_state()
+records._auto_update_state()
         </field>
         <field name="interval_number">1</field>
         <field name="interval_type">days</field>
